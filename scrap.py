@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request
 from bs4 import BeautifulSoup
 import requests
+from flask import make_response
+
 
 app = Flask(__name__)
 
@@ -122,6 +124,35 @@ def download_admit_card():
         return jsonify({"error": "Something went wrong. Please try again."}), 500
 
 
+# @app.route('/api/result', methods=['POST'])
+# def download_result_card():
+#     try:
+#         token = request.form['token']
+#         exam_url = request.form['exam_url']
+#         headers = {
+#             'User-agent':
+#             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.19582"
+#         }
+#         cookies = {
+#             'JSESSIONID': token
+#         }
+#         el = requests.get(exam_url, headers=headers, cookies=cookies)
+#         soup = BeautifulSoup(el.text, "html.parser")
+#         link = soup.select_one('a[target="result_window"]')
+
+#         link = 'http://juadmission.jdvu.ac.in'+link['href']
+
+#         print(link)
+
+#         return jsonify({"result": link})
+
+#     except requests.exceptions.HTTPError as err:
+#         return jsonify({"error": "Something went wrong. Please try again."}), err.response.status_code
+
+#     except Exception as e:
+#         return jsonify({"error": "Something went wrong. Please try again."}), 500
+
+# Download Result Card API
 @app.route('/api/result', methods=['POST'])
 def download_result_card():
     try:
@@ -138,11 +169,22 @@ def download_result_card():
         soup = BeautifulSoup(el.text, "html.parser")
         link = soup.select_one('a[target="result_window"]')
 
-        link = 'http://juadmission.jdvu.ac.in'+link['href']
+        download_url = 'http://juadmission.jdvu.ac.in' + link['href']
 
-        print(link)
+        response = requests.get(download_url, headers=headers, cookies=cookies)
 
-        return jsonify({"result": link})
+        # Set the content type as application/pdf
+        response_headers = {'Content-Type': 'application/pdf'}
+
+        # Set the content disposition as attachment
+        filename = "result_card.pdf"
+        response_headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+        # Create a Flask response with the PDF content and headers
+        flask_response = make_response(response.content)
+        flask_response.headers = response_headers
+
+        return flask_response
 
     except requests.exceptions.HTTPError as err:
         return jsonify({"error": "Something went wrong. Please try again."}), err.response.status_code
