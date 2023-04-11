@@ -43,7 +43,7 @@ def scrape_data():
 
         el = 'http://juadmission.jdvu.ac.in'+image  # image Link
         # print(el)
-
+        exam_list = []
         exam_map = {}
         exam = soup.find_all('a', class_="easyui-linkbutton")
         # pop 1st element
@@ -51,13 +51,15 @@ def scrape_data():
         for i in exam:
             exam_name = i.find('b').text.strip()
             exam_url = i['href']
-            exam_map[exam_name] = "http://juadmission.jdvu.ac.in"+exam_url
+            exam_map["text"] = exam_name
+            exam_map["link"] = "http://juadmission.jdvu.ac.in"+exam_url
+            exam_list.append(exam_map)
 
         allInfo = {
             "name": soup.select("td")[4].text.strip(),
             "department": soup.select("td")[8].text.strip(),
             "image": el,
-            "exam": exam_map,
+            "exam": exam_list,
             "token": token
         }
 
