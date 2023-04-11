@@ -7,6 +7,13 @@ import pdfkit
 
 app = Flask(__name__)
 
+# Server Working
+
+
+@app.route('/')
+def index():
+    return jsonify({"message": "Server is working."})
+
 # Login API
 
 
@@ -155,4 +162,4 @@ def download_result_card():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
